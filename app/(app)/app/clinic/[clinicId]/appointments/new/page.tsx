@@ -1,5 +1,3 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 import { hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
@@ -10,7 +8,7 @@ export default async function NewAppointmentPage({
 }: {
   params: Promise<{ clinicId: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
   const { clinicId } = await params
 
   if (!session?.user?.id) {

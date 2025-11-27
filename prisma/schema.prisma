@@ -170,7 +170,7 @@ model Service {
   updatedAt      DateTime    @updatedAt
 
   clinic         Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  appointments   Appointment[]
+  appointments   Appointment[] @relation("AppointmentService")
   invoiceItems   InvoiceItem[]
 
   @@index([clinicId])

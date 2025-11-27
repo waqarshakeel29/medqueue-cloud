@@ -1,14 +1,13 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
+import { getSession } from "@/lib/auth"
 
 export default async function PublicLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -114,3 +114,11 @@ export async function hasClinicAccess(
   return roleHierarchy[membership.role] >= roleHierarchy[requiredRole]
 }
 
+// Helper function for getting server session (NextAuth v5 compatible)
+// For now, returns null until database is set up
+export async function getSession() {
+  // TODO: Implement proper session retrieval once database is configured
+  // This is a temporary implementation to allow the app to build
+  return null
+}
+

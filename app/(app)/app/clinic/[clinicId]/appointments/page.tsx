@@ -1,6 +1,4 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { hasClinicAccess } from "@/lib/auth"
+import { getSession, hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { AppointmentsClient } from "@/components/appointments-client"
@@ -13,7 +11,7 @@ export default async function AppointmentsPage({
   params: Promise<{ clinicId: string }>
   searchParams: Promise<{ date?: string; doctorId?: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
   const { clinicId } = await params
   const { date, doctorId } = await searchParams
 

@@ -1,6 +1,4 @@
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { hasClinicAccess } from "@/lib/auth"
+import { getSession, hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { TokenPrintClient } from "@/components/token-print-client"
@@ -11,7 +9,7 @@ export default async function TokenPrintPage({
 }: {
   params: Promise<{ clinicId: string; appointmentId: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
   const { clinicId, appointmentId } = await params
 
   if (!session?.user?.id) {

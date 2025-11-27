@@ -1,7 +1,5 @@
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { hasClinicAccess } from "@/lib/auth"
+import { getSession, hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { AppSidebar } from "@/components/app-sidebar"
 import { AppHeader } from "@/components/app-header"
@@ -13,7 +11,7 @@ export default async function ClinicLayout({
   children: React.ReactNode
   params: Promise<{ clinicId: string }>
 }) {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
   const { clinicId } = await params
 
   if (!session?.user?.id) {

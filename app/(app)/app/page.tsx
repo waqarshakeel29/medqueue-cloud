@@ -1,10 +1,8 @@
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
-import { getUserClinicMemberships } from "@/lib/auth"
+import { getSession, getUserClinicMemberships } from "@/lib/auth"
 
 export default async function AppPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getSession()
 
   if (!session?.user?.id) {
     redirect("/auth/login")
