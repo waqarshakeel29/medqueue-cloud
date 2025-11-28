@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getSession, hasClinicAccess, ClinicRole } from "@/lib/auth"
+import { auth, hasClinicAccess, ClinicRole } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,7 +11,7 @@ export default async function SettingsPage({
 }: {
   params: Promise<{ clinicId: string }>
 }) {
-  const session = await getSession()
+  const session = await auth()
   const { clinicId } = await params
 
   if (!session?.user?.id) {
@@ -68,6 +68,23 @@ export default async function SettingsPage({
               </Button>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Team &amp; Permissions</CardTitle>
+          <CardDescription>
+            Invite employees and control their access level.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-between">
+          <p className="text-sm text-gray-600">
+            Add doctors, reception staff, and other administrators to your clinic.
+          </p>
+          <Button asChild>
+            <Link href={`/app/clinic/${clinicId}/settings/team`}>Manage team</Link>
+          </Button>
         </CardContent>
       </Card>
     </div>

@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { getSession, hasClinicAccess, ClinicRole } from "@/lib/auth"
+import { auth, hasClinicAccess, ClinicRole } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { OnboardingClient } from "@/components/onboarding-client"
 
@@ -8,7 +8,7 @@ export default async function OnboardingPage({
 }: {
   params: Promise<{ clinicId: string }>
 }) {
-  const session = await getSession()
+  const session = await auth()
   const { clinicId } = await params
 
   if (!session?.user?.id) {

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
+import { auth } from "@/lib/auth"
 import { hasClinicAccess, ClinicRole } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import Stripe from "stripe"
@@ -10,7 +10,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
 
 export async function POST(request: Request) {
   try {
-    const session = await getSession()
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }

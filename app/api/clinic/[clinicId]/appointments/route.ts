@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSession } from "@/lib/auth"
-import { hasClinicAccess } from "@/lib/auth"
+import { auth, hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
@@ -20,7 +19,7 @@ export async function GET(
   { params }: { params: Promise<{ clinicId: string }> }
 ) {
   try {
-    const session = await getSession()
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -84,7 +83,7 @@ export async function POST(
   { params }: { params: Promise<{ clinicId: string }> }
 ) {
   try {
-    const session = await getSession()
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -121,6 +120,11 @@ export async function POST(
     const startTime = new Date(appointmentDate)
     startTime.setHours(hours, minutes, 0, 0)
 
+    const primaryServiceId =
+      validatedData.primaryServiceId && validatedData.primaryServiceId.trim() !== ""
+        ? validatedData.primaryServiceId
+        : undefined
+
     const appointment = await prisma.appointment.create({
       data: {
         clinicId,
@@ -129,7 +133,7 @@ export async function POST(
         date: appointmentDate,
         startTime,
         tokenNumber,
-        primaryServiceId: validatedData.primaryServiceId,
+        primaryServiceId,
         visitType: validatedData.visitType,
         notesForReception: validatedData.notesForReception,
         notesForDoctor: validatedData.notesForDoctor,

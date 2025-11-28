@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dialog"
 import { Plus } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { ClinicRole } from "@prisma/client"
 
 interface Doctor {
   id: string
@@ -28,9 +29,10 @@ interface Doctor {
 interface DoctorsClientProps {
   clinicId: string
   initialDoctors: Doctor[]
+  userRole: ClinicRole | null
 }
 
-export function DoctorsClient({ clinicId, initialDoctors }: DoctorsClientProps) {
+export function DoctorsClient({ clinicId, initialDoctors, userRole }: DoctorsClientProps) {
   const router = useRouter()
   const [doctors, setDoctors] = useState(initialDoctors)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -70,6 +72,8 @@ export function DoctorsClient({ clinicId, initialDoctors }: DoctorsClientProps) 
     }
   }
 
+  const canCreateDoctors = userRole !== ClinicRole.RECEPTION
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -77,13 +81,14 @@ export function DoctorsClient({ clinicId, initialDoctors }: DoctorsClientProps) 
           <h1 className="text-3xl font-bold">Doctors</h1>
           <p className="text-gray-600 mt-1">Manage your clinic's doctors</p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Doctor
-            </Button>
-          </DialogTrigger>
+        {canCreateDoctors && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Doctor
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Add New Doctor</DialogTitle>
@@ -133,6 +138,7 @@ export function DoctorsClient({ clinicId, initialDoctors }: DoctorsClientProps) 
             </form>
           </DialogContent>
         </Dialog>
+        )}
       </div>
 
       <Card>

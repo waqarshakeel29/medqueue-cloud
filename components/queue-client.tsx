@@ -29,8 +29,12 @@ export function QueueClient({
   const [appointments, setAppointments] = useState(initialAppointments)
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      fetch(`/api/clinic/${clinicId}/appointments?date=${new Date().toISOString().split("T")[0]}${selectedDoctorId ? `&doctorId=${selectedDoctorId}` : ""}`)
+    const fetchAppointments = () => {
+      fetch(
+        `/api/clinic/${clinicId}/appointments?date=${new Date()
+          .toISOString()
+          .split("T")[0]}${selectedDoctorId ? `&doctorId=${selectedDoctorId}` : ""}`
+      )
         .then((res) => res.json())
         .then((data) => {
           setAppointments(
@@ -39,7 +43,10 @@ export function QueueClient({
             )
           )
         })
-    }, 5000) // Refresh every 5 seconds
+    }
+
+    fetchAppointments()
+    const interval = setInterval(fetchAppointments, 5000) // Refresh every 5 seconds
 
     return () => clearInterval(interval)
   }, [clinicId, selectedDoctorId])
@@ -56,7 +63,15 @@ export function QueueClient({
       )
 
       if (response.ok) {
-        router.refresh()
+        const updatedAppointment = await response.json()
+        setAppointments((prev) => {
+          const next = prev.map((apt) =>
+            apt.id === appointmentId ? { ...apt, status: updatedAppointment.status } : apt
+          )
+          return next.filter((apt) =>
+            ["SCHEDULED", "CHECKED_IN", "IN_CONSULTATION"].includes(apt.status)
+          )
+        })
       }
     } catch (error) {
       console.error("Error updating status:", error)

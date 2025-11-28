@@ -53,8 +53,9 @@ model VerificationToken {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  email         String    @unique
+  email         String?   @unique
   emailVerified DateTime?
+  cnic          String?   @unique
   password      String?
   image         String?
   createdAt     DateTime  @default(now())
@@ -64,8 +65,11 @@ model User {
   sessions      Session[]
   clinics       Clinic[]  @relation("ClinicOwner")
   memberships   ClinicMembership[]
+  doctorProfiles Doctor[] @relation("DoctorUser")
+  sentInvitations Invitation[] @relation("InvitationSender")
 
   @@index([email])
+  @@index([cnic])
 }
 
 enum ClinicRole {
@@ -93,6 +97,7 @@ model Clinic {
   services      Service[]
   invoices      Invoice[]
   subscription  Subscription?
+  invitations   Invitation[]
 
   @@index([slug])
   @@index([ownerId])
@@ -116,6 +121,7 @@ model ClinicMembership {
 model Doctor {
   id          String    @id @default(cuid())
   clinicId    String
+  userId      String?
   name        String
   speciality  String?
   roomNumber  String?
@@ -124,10 +130,12 @@ model Doctor {
   updatedAt   DateTime  @updatedAt
 
   clinic      Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  user        User?         @relation("DoctorUser", fields: [userId], references: [id], onDelete: SetNull)
   appointments Appointment[]
 
   @@index([clinicId])
   @@index([clinicId, isActive])
+  @@index([userId])
 }
 
 model Patient {
@@ -300,4 +308,28 @@ model Subscription {
 
   @@index([clinicId])
   @@index([stripeCustomerId])
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  clinicId    String
+  invitedById String
+  email       String
+  role        ClinicRole       @default(RECEPTION)
+  token       String           @unique
+  status      InvitationStatus @default(PENDING)
+  expiresAt   DateTime
+  createdAt   DateTime         @default(now())
+
+  clinic    Clinic @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  invitedBy User   @relation("InvitationSender", fields: [invitedById], references: [id], onDelete: Cascade)
+
+  @@index([clinicId])
+  @@index([email])
 }

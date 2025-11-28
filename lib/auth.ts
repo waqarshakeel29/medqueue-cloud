@@ -1,9 +1,12 @@
+import NextAuth from "next-auth"
 import { NextAuthOptions } from "next-auth"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { ClinicRole } from "@prisma/client"
+
+export { ClinicRole }
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as any,
@@ -19,7 +22,7 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Email or CNIC", type: "text" },
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
@@ -27,8 +30,18 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+        const identifier = credentials.email.trim()
+        // Normalize CNIC by removing dashes and spaces for comparison
+        const normalizedCnic = identifier.replace(/[-\s]/g, "")
+        
+        // Try to find user by email or CNIC
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: identifier },
+              { cnic: normalizedCnic },
+            ],
+          },
         })
 
         if (!user || !user.password) {
@@ -114,11 +127,10 @@ export async function hasClinicAccess(
   return roleHierarchy[membership.role] >= roleHierarchy[requiredRole]
 }
 
-// Helper function for getting server session (NextAuth v5 compatible)
-// For now, returns null until database is set up
-export async function getSession() {
-  // TODO: Implement proper session retrieval once database is configured
-  // This is a temporary implementation to allow the app to build
-  return null
-}
+export const {
+  auth,
+  handlers,
+  signIn,
+  signOut,
+} = NextAuth(authOptions)
 

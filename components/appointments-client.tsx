@@ -51,10 +51,13 @@ export function AppointmentsClient({
   const [selectedDate, setSelectedDate] = useState(initialDate)
 
   useEffect(() => {
-    // Refresh appointments when date changes
-    fetch(`/api/clinic/${clinicId}/appointments?date=${selectedDate}`)
-      .then((res) => res.json())
-      .then((data) => setAppointments(data))
+    const fetchAppointments = () => {
+      fetch(`/api/clinic/${clinicId}/appointments?date=${selectedDate}`)
+        .then((res) => res.json())
+        .then((data) => setAppointments(data))
+    }
+
+    fetchAppointments()
   }, [selectedDate, clinicId])
 
   const handleStatusChange = async (appointmentId: string, newStatus: string) => {
@@ -69,7 +72,12 @@ export function AppointmentsClient({
       )
 
       if (response.ok) {
-        router.refresh()
+        const updatedAppointment = await response.json()
+        setAppointments((prev) =>
+          prev.map((apt) =>
+            apt.id === appointmentId ? { ...apt, status: updatedAppointment.status } : apt
+          )
+        )
       }
     } catch (error) {
       console.error("Error updating status:", error)

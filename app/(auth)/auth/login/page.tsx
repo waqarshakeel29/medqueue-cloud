@@ -31,7 +31,7 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError("Invalid email or password")
+        setError("Invalid email/CNIC or password")
       } else {
         router.push(callbackUrl)
         router.refresh()
@@ -49,7 +49,7 @@ export default function LoginPage() {
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Sign in to MedQueue Cloud</CardTitle>
           <CardDescription>
-            Enter your email and password to access your account
+            Enter your email or CNIC and password to access your account
           </CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
@@ -60,11 +60,11 @@ export default function LoginPage() {
               </div>
             )}
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">Email or CNIC</Label>
               <Input
                 id="email"
-                type="email"
-                placeholder="name@example.com"
+                type="text"
+                placeholder="name@example.com or 12345-1234567-1"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

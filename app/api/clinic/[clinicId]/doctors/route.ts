@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { getSession, hasClinicAccess } from "@/lib/auth"
+import { auth, hasClinicAccess, ClinicRole } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 
@@ -15,7 +15,7 @@ export async function GET(
   { params }: { params: Promise<{ clinicId: string }> }
 ) {
   try {
-    const session = await getSession()
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -46,7 +46,7 @@ export async function POST(
   { params }: { params: Promise<{ clinicId: string }> }
 ) {
   try {
-    const session = await getSession()
+    const session = await auth()
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
@@ -55,6 +55,26 @@ export async function POST(
     const hasAccess = await hasClinicAccess(session.user.id, clinicId)
     if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 })
+    }
+
+    // Check if user is a receptionist - they cannot create doctors
+    const membership = await prisma.clinicMembership.findUnique({
+      where: {
+        userId_clinicId: {
+          userId: session.user.id,
+          clinicId,
+        },
+      },
+      select: {
+        role: true,
+      },
+    })
+
+    if (membership?.role === ClinicRole.RECEPTION) {
+      return NextResponse.json(
+        { error: "Receptionists cannot create doctors" },
+        { status: 403 }
+      )
     }
 
     const body = await request.json()

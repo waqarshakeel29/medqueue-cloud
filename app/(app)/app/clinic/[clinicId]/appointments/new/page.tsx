@@ -1,4 +1,4 @@
-import { hasClinicAccess } from "@/lib/auth"
+import { auth, hasClinicAccess } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import { NewAppointmentClient } from "@/components/new-appointment-client"
@@ -8,7 +8,7 @@ export default async function NewAppointmentPage({
 }: {
   params: Promise<{ clinicId: string }>
 }) {
-  const session = await getSession()
+  const session = await auth()
   const { clinicId } = await params
 
   if (!session?.user?.id) {

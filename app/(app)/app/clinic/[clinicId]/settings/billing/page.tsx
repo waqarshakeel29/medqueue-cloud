@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation"
-import { hasClinicAccess, ClinicRole } from "@/lib/auth"
+import { auth, hasClinicAccess, ClinicRole } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { BillingClient } from "@/components/billing-client"
 
@@ -10,7 +10,7 @@ export default async function BillingPage({
   params: Promise<{ clinicId: string }>
   searchParams: Promise<{ success?: string; canceled?: string }>
 }) {
-  const session = await getSession()
+  const session = await auth()
   const { clinicId } = await params
   const { success, canceled } = await searchParams
 

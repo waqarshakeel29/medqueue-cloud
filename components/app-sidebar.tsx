@@ -32,13 +32,21 @@ const navigation = [
 export function AppSidebar({ clinicId, role }: AppSidebarProps) {
   const pathname = usePathname()
 
+  // Filter out Settings for RECEPTION role
+  const filteredNavigation = navigation.filter((item) => {
+    if (item.name === "Settings" && role === ClinicRole.RECEPTION) {
+      return false
+    }
+    return true
+  })
+
   return (
     <div className="flex w-64 flex-col bg-white border-r">
       <div className="flex h-16 items-center border-b px-6">
         <h1 className="text-lg font-bold text-primary">MedQueue Cloud</h1>
       </div>
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {navigation.map((item) => {
+        {filteredNavigation.map((item) => {
           const href = item.href(clinicId)
           const isActive = pathname === href || pathname?.startsWith(href + "/")
           return (
